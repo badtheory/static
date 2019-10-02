@@ -5,9 +5,11 @@ package static
 import (
 	"fmt"
 	"github.com/gabriel-vasile/mimetype"
+	"mime"
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -64,11 +66,9 @@ func Serve(urlPrefix string, location string, index bool) func(next http.Handler
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if fs.Exists(urlPrefix, r.URL.Path) {
 
-				p := strings.TrimPrefix(r.URL.Path, urlPrefix)
-				file := path.Join(location, p)
-				mime, ex, err := mimetype.DetectFile(file)
+				ext := filepath.Ext(r.URL.Path)
+				mime := mime.TypeByExtension(ext)
 				w.Header().Set("Content-Type", mime)
-				fmt.Println(mime, file, ex, err)
 				fileserver.ServeHTTP(w, r)
 
 			} else {
