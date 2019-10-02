@@ -9,6 +9,7 @@ import (
 	"strings"
 	"github.com/gabriel-vasile/mimetype"
 	"fmt"
+	"filepath"
 )
 
 const INDEX = "index.html"
@@ -62,9 +63,10 @@ func Serve(urlPrefix string, fs ServeFileSystem) func(next http.Handler) http.Ha
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if fs.Exists(urlPrefix, r.URL.Path) {
-				mime, _, _ := mimetype.DetectFile(urlPrefix)
+				file := filepath.Base(r.URL.Path)
+				mime, _, _ := mimetype.DetectFile(file)
 				w.Header().Set("Content-Type", mime)
-				fmt.Println(mime, r.URL.Path)
+				fmt.Println(mime, file)
 				fileserver.ServeHTTP(w, r)
 			} else {
 				next.ServeHTTP(w, r)
