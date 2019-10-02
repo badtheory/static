@@ -9,7 +9,6 @@ import (
 	"strings"
 	"github.com/gabriel-vasile/mimetype"
 	"fmt"
-	"path/filepath"
 )
 
 const INDEX = "index.html"
