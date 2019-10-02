@@ -8,6 +8,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"fmt"
 )
 
 const INDEX = "index.html"
@@ -82,6 +83,7 @@ func Serve(urlPrefix string, fs ServeFileSystem) func(next http.Handler) http.Ha
 				f.Seek(0, 0)
 
 				w.Header().Set("Content-Type", http.DetectContentType(FileHeader))
+				fmt.Println(http.DetectContentType(FileHeader))
 				w.Header().Set("Content-Length", FileSize)
 
 				fileserver.ServeHTTP(w, r)
