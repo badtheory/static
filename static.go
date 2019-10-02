@@ -65,7 +65,7 @@ func Serve(urlPrefix string, fs ServeFileSystem) func(next http.Handler) http.Ha
 				file := strings.TrimPrefix(r.URL.Path, urlPrefix)
 				mime, ex, _ := mimetype.DetectFile(file)
 				w.Header().Set("Content-Type", mime)
-				fmt.Println(mime, file, ex)
+				fmt.Println(mime, file, ex, r.URL.Path, urlPrefix)
 				fileserver.ServeHTTP(w, r)
 			} else {
 				next.ServeHTTP(w, r)
