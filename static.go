@@ -3,12 +3,12 @@
 package static
 
 import (
+	"fmt"
+	"github.com/gabriel-vasile/mimetype"
 	"net/http"
 	"os"
 	"path"
 	"strings"
-	"github.com/gabriel-vasile/mimetype"
-	"fmt"
 )
 
 const INDEX = "index.html"
@@ -54,7 +54,8 @@ func (l *localFileSystem) Exists(prefix string, filepath string) bool {
 }
 
 // Static returns a middleware handler that serves static files in the given directory.
-func Serve(urlPrefix string, fs ServeFileSystem) func(next http.Handler) http.Handler {
+func Serve(urlPrefix string, location string, index bool) func(next http.Handler) http.Handler {
+	fs := LocalFile(location, index)
 	fileserver := http.FileServer(fs)
 	if urlPrefix != "" {
 		fileserver = http.StripPrefix(urlPrefix, fileserver)
@@ -62,11 +63,14 @@ func Serve(urlPrefix string, fs ServeFileSystem) func(next http.Handler) http.Ha
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if fs.Exists(urlPrefix, r.URL.Path) {
-				file := r.URL.Path
+
+				p := strings.TrimPrefix(r.URL.Path, urlPrefix)
+				file := path.Join(location, p)
 				mime, ex, err := mimetype.DetectFile(file)
 				w.Header().Set("Content-Type", mime)
 				fmt.Println(mime, file, ex, err)
 				fileserver.ServeHTTP(w, r)
+
 			} else {
 				next.ServeHTTP(w, r)
 			}
